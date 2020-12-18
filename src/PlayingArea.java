@@ -2,24 +2,47 @@ import Block.Block;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class PlayingArea extends JPanel implements Runnable{
 
     private Thread runner;
 
-    private Block[][] playingArea = new Block[20][10];
+    private Block[][] playingArea = new Block[10][20];
     private boolean running = false;
 
-    private final int Action_rotate = KeyEvent.VK_UP;
-    private final int Action_left = KeyEvent.VK_LEFT;
-    private final int Action_right = KeyEvent.VK_RIGHT;
-    private final int Action_down = KeyEvent.VK_DOWN;
+    private final int ACTION_ROTATE = KeyEvent.VK_UP;
+    private final int ACTION_LEFT = KeyEvent.VK_LEFT;
+    private final int ACTION_RIGHT = KeyEvent.VK_RIGHT;
+    private final int ACTION_DOWN = KeyEvent.VK_DOWN;
 
     public PlayingArea() {
         super();
 
         this.setBackground(Color.BLACK);
+
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+                switch (e.getKeyCode()){
+                    case(ACTION_ROTATE):
+
+                        break;
+                    case(ACTION_LEFT):
+
+                        break;
+                    case(ACTION_RIGHT):
+
+                        break;
+                    case(ACTION_DOWN):
+
+                        break;
+                }
+            }
+        });
+        this.setFocusable(true);
 
         initBlocks();
     }
@@ -52,6 +75,16 @@ public class PlayingArea extends JPanel implements Runnable{
     public void paint(Graphics g) {
         super.paint(g);
 
+        /*
+            paint playing area
+         */
+        for(int i=0;i < playingArea.length;i++){
+            for(int j=0;j < playingArea[i].length;j++){
+                g.setColor(Color.WHITE);
+                //paint grid
+                g.drawRect(i*30,j*30,30,30);
+            }
+        }
     }
 
     private void initBlocks(){
