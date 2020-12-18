@@ -1,5 +1,3 @@
-import Block.Block;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -10,7 +8,8 @@ public class PlayingArea extends JPanel implements Runnable{
     private Thread runner;
 
     private Block[][] playingArea = new Block[10][20];
-    private boolean running = false;
+    private Piece currentPiece;
+    private boolean running = true;
 
     private final int ACTION_ROTATE = KeyEvent.VK_UP;
     private final int ACTION_LEFT = KeyEvent.VK_LEFT;
@@ -57,9 +56,13 @@ public class PlayingArea extends JPanel implements Runnable{
     @Override
     public void run() {
 
+        currentPiece = Piece.J;
+        currentPiece.setPosition(new Point(0,0));
+
         while(true){
             if(isRunning()){
-
+                currentPiece.moveOneDown();
+                this.repaint();
             }else{
 
             }
@@ -76,7 +79,7 @@ public class PlayingArea extends JPanel implements Runnable{
         super.paint(g);
 
         /*
-            paint playing area
+            paint block matrix
          */
         for(int i=0;i < playingArea.length;i++){
             for(int j=0;j < playingArea[i].length;j++){
@@ -85,6 +88,10 @@ public class PlayingArea extends JPanel implements Runnable{
                 g.drawRect(i*30,j*30,30,30);
             }
         }
+        /*
+            paint currentPiece
+         */
+        currentPiece.paintPiece(g);
     }
 
     private void initBlocks(){
