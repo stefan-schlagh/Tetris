@@ -27,16 +27,16 @@ public class PlayingArea extends JPanel implements Runnable{
 
                 switch (e.getKeyCode()){
                     case(ACTION_ROTATE):
-
+                        currentPiece.rotate();
                         break;
                     case(ACTION_LEFT):
-
+                        currentPiece.moveOneLeft();
                         break;
                     case(ACTION_RIGHT):
-
+                        currentPiece.moveOneRight();
                         break;
                     case(ACTION_DOWN):
-
+                        currentPiece.moveOneDown();
                         break;
                 }
             }
@@ -56,18 +56,22 @@ public class PlayingArea extends JPanel implements Runnable{
     @Override
     public void run() {
 
-        currentPiece = Piece.J;
+        currentPiece = Piece.S;
         currentPiece.setPosition(new Point(0,0));
+
+        int i = 0;
 
         while(true){
             if(isRunning()){
-                currentPiece.moveOneDown();
+                if(i == 19)
+                    currentPiece.moveOneDown();
+                i = (i+1)%20;
                 this.repaint();
             }else{
 
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
