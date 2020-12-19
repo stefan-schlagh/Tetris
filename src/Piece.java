@@ -94,6 +94,7 @@ public enum Piece {
 
         init();
     }
+
     private void init(){
         //initialize BlockMatrix
         blockMatrix = new Block[rows][columns];
@@ -131,13 +132,17 @@ public enum Piece {
         the position of the piece moves left by one block
      */
     public void moveOneLeft(){
-        position.x = position.x - 1;
+        // if the piece would not stay in the playing area, do not allow
+        if(position.x > 0)
+            position.x = position.x - 1;
     }
     /*
         the position of the piece moves right by one block
      */
     public void moveOneRight(){
-        position.x = position.x + 1;
+        // if the piece would not stay in the playing area, do not allow
+        if(position.x + getWidth() < PlayingArea.areaWidth)
+            position.x = position.x + 1;
     }
     /*
         the piece is rotated clockwise
@@ -179,16 +184,29 @@ public enum Piece {
             }
         }
         blockMatrix = blockMatrixNew;
+
+        // check if block would be outside --> if, move it to the left
+        if(position.x + getWidth() > PlayingArea.areaWidth){
+            position.x = PlayingArea.areaWidth - getWidth();
+        }
     }
 
     public void paintPiece(Graphics g){
         g.setColor(this.blocks[0].getColor());
         for(int i=0;i<this.blocks.length;i++){
             g.fillRect(
-                    (position.x + this.blocks[i].getX()) * 30 + 1,
-                    (position.y + this.blocks[i].getY()) * 30 + 1,
+                    (position.x + this.blocks[i].getX()) * PlayingArea.pixelsPerSquare + 1,
+                    (position.y + this.blocks[i].getY()) * PlayingArea.pixelsPerSquare + 1,
                     28,28);
         }
+    }
+
+    public int getHeight(){
+        return blockMatrix.length;
+    }
+
+    public int getWidth(){
+        return blockMatrix[0].length;
     }
 
     public Block[] getBlocks() {

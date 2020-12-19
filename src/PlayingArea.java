@@ -7,7 +7,11 @@ public class PlayingArea extends JPanel implements Runnable{
 
     private Thread runner;
 
-    private Block[][] playingArea = new Block[10][20];
+    public static final int areaHeight = 20;
+    public static final int areaWidth = 10;
+    public static final int pixelsPerSquare = 30;
+
+    private Block[][] playingArea = new Block[areaWidth][areaHeight];
     private Piece currentPiece;
     private boolean running = true;
 
@@ -56,7 +60,7 @@ public class PlayingArea extends JPanel implements Runnable{
     @Override
     public void run() {
 
-        currentPiece = Piece.S;
+        currentPiece = Piece.I;
         currentPiece.setPosition(new Point(0,0));
 
         int i = 0;
@@ -89,7 +93,11 @@ public class PlayingArea extends JPanel implements Runnable{
             for(int j=0;j < playingArea[i].length;j++){
                 g.setColor(Color.WHITE);
                 //paint grid
-                g.drawRect(i*30,j*30,30,30);
+                g.drawRect(
+                        i * pixelsPerSquare,
+                        j * pixelsPerSquare,
+                        pixelsPerSquare,
+                        pixelsPerSquare);
             }
         }
         /*
@@ -103,7 +111,6 @@ public class PlayingArea extends JPanel implements Runnable{
             for (int i = 0;i<blockRow.length;i++) {
                 blockRow[i] = new Block(Block.NONE);
             }
-
         }
     }
 
