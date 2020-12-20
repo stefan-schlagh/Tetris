@@ -15,10 +15,15 @@ public class PlayingArea extends JPanel implements Runnable{
     private Piece currentPiece;
     private boolean running = true;
 
-    private final int ACTION_ROTATE = KeyEvent.VK_UP;
-    private final int ACTION_LEFT = KeyEvent.VK_LEFT;
-    private final int ACTION_RIGHT = KeyEvent.VK_RIGHT;
-    private final int ACTION_DOWN = KeyEvent.VK_DOWN;
+    private static final int ACTION_ROTATE = KeyEvent.VK_UP;
+    private static final int ACTION_LEFT = KeyEvent.VK_LEFT;
+    private static final int ACTION_RIGHT = KeyEvent.VK_RIGHT;
+    private static final int ACTION_DOWN = KeyEvent.VK_DOWN;
+
+    public static final int ROTATE = 0;
+    public static final int DIRECTION_LEFT = 1;
+    public static final int DIRECTION_RIGHT = 2;
+    public static final int DIRECTION_DOWN = 3;
 
     public PlayingArea() {
         super();
@@ -31,16 +36,16 @@ public class PlayingArea extends JPanel implements Runnable{
 
                 switch (e.getKeyCode()){
                     case(ACTION_ROTATE):
-                        currentPiece.rotate();
+                        rotate();
                         break;
                     case(ACTION_LEFT):
-                        currentPiece.moveOneLeft();
+                        moveOneLeft();
                         break;
                     case(ACTION_RIGHT):
-                        currentPiece.moveOneRight();
+                        moveOneRight();
                         break;
                     case(ACTION_DOWN):
-                        currentPiece.moveOneDown();
+                        moveDown();
                         break;
                 }
             }
@@ -60,15 +65,14 @@ public class PlayingArea extends JPanel implements Runnable{
     @Override
     public void run() {
 
-        currentPiece = Piece.I;
-        currentPiece.setPosition(new Point(0,0));
+        currentPiece = Piece.O;
 
         int i = 0;
 
         while(true){
             if(isRunning()){
                 if(i == 19)
-                    currentPiece.moveOneDown();
+                    moveDown();
                 i = (i+1)%20;
                 this.repaint();
             }else{
@@ -80,6 +84,63 @@ public class PlayingArea extends JPanel implements Runnable{
                 e.printStackTrace();
             }
         }
+    }
+    /*
+        if allowed, rotate
+     */
+    public void rotate(){
+        currentPiece.rotate();
+    }
+    /*
+        if allowed, move left
+     */
+    public void moveOneLeft(){
+        currentPiece.moveOneLeft();
+    }
+    /*
+        if allowed, move right
+     */
+    public void moveOneRight(){
+        currentPiece.moveOneRight();
+    }
+    /*
+        if allowed, move down
+     */
+    public void moveDown(){
+
+        if(!currentPiece.isAtBottom())
+            currentPiece.moveOneDown();
+    }
+    /*
+        returns if there will be a collision after movement
+     */
+    public boolean isCollision(int direction){
+        //rotate needs extra treatment
+        if(direction == ROTATE){
+            //TODO
+        }else {
+            //loop over blocks of piece
+            for (int i = 0; i < currentPiece.getBlocks().length; i++) {
+
+                Block currentBlock = currentPiece.getBlocks()[i];
+                int block_x = currentBlock.getX() + currentPiece.getPosition().x;
+                int block_y = currentBlock.getX() + currentPiece.getPosition().y;
+
+                switch (direction) {
+
+                    case DIRECTION_LEFT:
+                        //TODO
+                        break;
+                    case DIRECTION_RIGHT:
+                        //TODO
+                        break;
+                    case DIRECTION_DOWN:
+                        //TODO
+                        break;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

@@ -95,7 +95,7 @@ public enum Piece {
         init();
     }
 
-    private void init(){
+    public void init(){
         //initialize BlockMatrix
         blockMatrix = new Block[rows][columns];
         for(int i = 0;i < blockMatrix.length;i++){
@@ -121,6 +121,8 @@ public enum Piece {
             }
             System.out.print("\n");
         }*/
+        //set Position
+        setPosition(new Point(PlayingArea.areaWidth / 2 - 1,1 - getHeight()));
     }
     /*
         the position of the piece moves down by one block
@@ -209,7 +211,84 @@ public enum Piece {
         return blockMatrix[0].length;
     }
 
+    public boolean isAtBottom(){
+        // +1 because coordinate system starts at 0, last position is areaHeight -1
+        return position.y + getHeight() + 1 >= PlayingArea.areaHeight;
+    }
+
     public Block[] getBlocks() {
+        return blocks;
+    }
+
+    public Block[] getBlocks(int direction){
+
+        Block[] blocks = new Block[1];
+
+        switch (direction){
+            case PlayingArea.DIRECTION_LEFT:
+                /*
+                    return all left blocks in the blockMatrix
+                    length of blocks = height
+                 */
+                blocks = new Block[getHeight()];
+                for(int i = 0;i < blockMatrix.length;i++){
+                    for(int j = 0;j < blockMatrix[i].length;j++){
+                        /*
+                            if the block belongs to the piece, add to blocks
+                            otherwise look to the block right of it
+                         */
+                        if(blockMatrix[i][j].getType() == Block.PIECE){
+                            blocks[i] = blockMatrix[i][j];
+                            break;
+                        }
+                    }
+                }
+                break;
+
+            case PlayingArea.DIRECTION_RIGHT:
+                /*
+                    return all right blocks in the blockMatrix
+                    length of blocks = height
+                 */
+                blocks = new Block[getHeight()];
+                for(int i = 0;i < blockMatrix.length;i++){
+                    for(int j = blockMatrix[i].length - 1;j >= 0;j--){
+                        /*
+                            if the block belongs to the piece, add to blocks
+                            otherwise look to the block left of it
+                         */
+                        if(blockMatrix[i][j].getType() == Block.PIECE){
+                            blocks[i] = blockMatrix[i][j];
+                            break;
+                        }
+                    }
+                }
+                break;
+
+            case PlayingArea.DIRECTION_DOWN:
+                /*
+                    return the lower blocks in the blockMatrix
+                    length of blocks = width
+                 */
+                blocks = new Block[getWidth()];
+                for(int i = blockMatrix.length - 1;i >= 0;i--){
+                    for(int j = 0;j < blockMatrix[i].length;j++){
+                        /*
+                            if blocks[j] is not already initialized
+                            if the block belongs to the piece, add to blocks
+                            otherwise look to the block on top of it in the cycle of i
+                         */
+                        if(blocks[j] == null
+                                && blockMatrix[i][j].getType() == Block.PIECE){
+
+                            blocks[j] = blockMatrix[i][j];
+                        }
+                    }
+                }
+                break;
+            default:
+                assert (false);
+        }
         return blocks;
     }
 
