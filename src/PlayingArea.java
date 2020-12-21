@@ -65,7 +65,7 @@ public class PlayingArea extends JPanel implements Runnable{
     @Override
     public void run() {
 
-        currentPiece = Piece.O;
+        currentPiece = Piece.getPiece(Piece.getRandPNumber());
 
         int i = 0;
 
@@ -116,6 +116,7 @@ public class PlayingArea extends JPanel implements Runnable{
         if(currentPiece.isAtBottom() || isCollision(DIRECTION_DOWN)) {
             pieceIntoBlocks(currentPiece);
             currentPiece.init();
+            currentPiece = Piece.getPiece(Piece.getRandPNumber());
         }else {
             currentPiece.moveOneDown();
         }
