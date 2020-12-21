@@ -7,7 +7,7 @@ public class MainFrame extends JFrame {
     public MainFrame () {
 
         this.setTitle("Tetris");
-        this.setSize(320,610);
+        this.setSize(320,640);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

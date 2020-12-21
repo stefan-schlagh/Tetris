@@ -66,7 +66,7 @@ public class TestPiece {
         Assertions.assertEquals(piece.getWidth(), 2);
     }
     @Test
-    void GetBlocksDirectionLeft() {
+    void GetBlocksDirectionLeftZ() {
         Piece piece = Piece.Z;
         // get blocks
         Block[] blocks = piece.getBlocks(PlayingArea.DIRECTION_LEFT);
@@ -77,7 +77,7 @@ public class TestPiece {
         Assertions.assertEquals(1,blocks[1].getX());
     }
     @Test
-    void GetBlocksDirectionRight() {
+    void GetBlocksDirectionRightZ() {
         Piece piece = Piece.Z;
         // get blocks
         Block[] blocks = piece.getBlocks(PlayingArea.DIRECTION_RIGHT);
@@ -101,7 +101,7 @@ public class TestPiece {
         Assertions.assertEquals(0,blocks[2].getX());
     }
     @Test
-    void GetBlocksDirectionDown() {
+    void GetBlocksDirectionDownZ() {
         Piece piece = Piece.Z;
         piece.init();
         // get blocks
@@ -112,5 +112,18 @@ public class TestPiece {
         Assertions.assertEquals(0,blocks[0].getY());
         Assertions.assertEquals(1,blocks[1].getY());
         Assertions.assertEquals(1,blocks[2].getY());
+    }
+    @Test
+    void GetBlocksDirectionDownO() {
+        Piece piece = Piece.O;
+        // get blocks
+        Block[] blocks = piece.getBlocks(PlayingArea.DIRECTION_DOWN);
+        // test blocks length
+        Assertions.assertEquals(2,blocks.length);
+        //test coordinates
+        Assertions.assertEquals(1,blocks[0].getY());
+        Assertions.assertEquals(1,blocks[1].getY());
+        Assertions.assertEquals(0,blocks[0].getX());
+        Assertions.assertEquals(1,blocks[1].getX());
     }
 }

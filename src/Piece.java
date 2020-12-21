@@ -187,19 +187,25 @@ public enum Piece {
         }
         blockMatrix = blockMatrixNew;
 
-        // check if block would be outside --> if, move it to the left
+        /*
+            check if block would be outside
+                --> if, move it to the left
+         */
         if(position.x + getWidth() > PlayingArea.areaWidth){
             position.x = PlayingArea.areaWidth - getWidth();
         }
+        /*
+            check if y of the lowest block would be negative
+                --> if, move it down
+         */
+        if(position.y + getHeight() < 0)
+            position.y = 0;
     }
 
     public void paintPiece(Graphics g){
         g.setColor(this.blocks[0].getColor());
         for(int i=0;i<this.blocks.length;i++){
-            g.fillRect(
-                    (position.x + this.blocks[i].getX()) * PlayingArea.pixelsPerSquare + 1,
-                    (position.y + this.blocks[i].getY()) * PlayingArea.pixelsPerSquare + 1,
-                    28,28);
+            this.blocks[i].paintBlock(position,g);
         }
     }
 
@@ -213,7 +219,7 @@ public enum Piece {
 
     public boolean isAtBottom(){
         // +1 because coordinate system starts at 0, last position is areaHeight -1
-        return position.y + getHeight() + 1 >= PlayingArea.areaHeight;
+        return position.y + getHeight() >= PlayingArea.areaHeight;
     }
 
     public Block[] getBlocks() {

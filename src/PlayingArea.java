@@ -11,7 +11,7 @@ public class PlayingArea extends JPanel implements Runnable{
     public static final int areaWidth = 10;
     public static final int pixelsPerSquare = 30;
 
-    private Block[][] playingArea = new Block[areaWidth][areaHeight];
+    private Block[][] playingArea = new Block[areaHeight][areaWidth];
     private Piece currentPiece;
     private boolean running = true;
 
@@ -95,52 +95,112 @@ public class PlayingArea extends JPanel implements Runnable{
         if allowed, move left
      */
     public void moveOneLeft(){
-        currentPiece.moveOneLeft();
+        if(!isCollision(DIRECTION_LEFT))
+            currentPiece.moveOneLeft();
     }
     /*
         if allowed, move right
      */
     public void moveOneRight(){
-        currentPiece.moveOneRight();
+        if(!isCollision(DIRECTION_RIGHT))
+            currentPiece.moveOneRight();
     }
     /*
         if allowed, move down
      */
     public void moveDown(){
-
-        if(!currentPiece.isAtBottom())
+        /*
+            if piece is at bottom
+                --> convert piece into fixed blocks
+         */
+        if(currentPiece.isAtBottom() || isCollision(DIRECTION_DOWN)) {
+            pieceIntoBlocks(currentPiece);
+            currentPiece.init();
+        }else {
             currentPiece.moveOneDown();
+        }
     }
     /*
         returns if there will be a collision after movement
      */
     public boolean isCollision(int direction){
+
         //rotate needs extra treatment
         if(direction == ROTATE){
             //TODO
         }else {
+            // get the blocks of the piece that are facing in the direction
+            Block[] blocks = currentPiece.getBlocks(direction);
             //loop over blocks of piece
-            for (int i = 0; i < currentPiece.getBlocks().length; i++) {
+            for (int i = 0; i < blocks.length; i++) {
 
-                Block currentBlock = currentPiece.getBlocks()[i];
+                Block currentBlock = blocks[i];
                 int block_x = currentBlock.getX() + currentPiece.getPosition().x;
-                int block_y = currentBlock.getX() + currentPiece.getPosition().y;
+                int block_y = currentBlock.getY() + currentPiece.getPosition().y;
 
                 switch (direction) {
 
                     case DIRECTION_LEFT:
-                        //TODO
+                        /*
+                            check if the type of block left to the block is Block.NONE
+                                if block_y < 0, do not check
+                            if block_x <= 0 --> collision (with edge)
+                         */
+                        if(block_x <= 0)
+                            return true;
+                        if(block_y >= 0) {
+                            Block blockLeft = playingArea[block_y][block_x - 1];
+                            if (blockLeft.getType() != Block.NONE)
+                                return true;
+                        }
                         break;
                     case DIRECTION_RIGHT:
-                        //TODO
+                        /*
+                            check if the type of block left to the block is Block.NONE
+                                if block_y < 0, do not check
+                            if block_x >= width - 1 --> collision (with edge)
+                         */
+                        if(block_x >= areaWidth - 1)
+                            return true;
+                        if(block_y >= 0) {
+                            Block blockRight = playingArea[block_y][block_x + 1];
+                            if (blockRight.getType() != Block.NONE)
+                                return true;
+                        }
                         break;
                     case DIRECTION_DOWN:
-                        //TODO
+                        /*
+                            check if the type of the block below the block is Block.NONE
+                         */
+                        Block blockBelow = playingArea[block_y + 1][block_x];
+                        if(blockBelow.getType() != Block.NONE)
+                            return true;
                         break;
                 }
             }
         }
         return false;
+    }
+    /*
+        make blocks of piece into blocks in the playingArea
+     */
+    public void pieceIntoBlocks(Piece piece){
+
+        Block[] pBlocks = piece.getBlocks();
+        for(int i = 0;i < pBlocks.length;i++){
+            Block pBlock = pBlocks[i];
+            int x_block = piece.getPosition().x + pBlock.getX();
+            int y_block = piece.getPosition().y + pBlock.getY();
+
+            Block paBlock = playingArea[y_block][x_block];
+            // paBlock.type has to be Block.NONE
+            if(paBlock.getType()  != Block.NONE){
+                System.out.println("There has been a undetected Collision");
+                assert(false);
+            }
+            paBlock.setType(Block.FIXED_BLOCK);
+            paBlock.setColor(pBlock.getColor());
+        }
     }
 
     @Override
@@ -155,10 +215,14 @@ public class PlayingArea extends JPanel implements Runnable{
                 g.setColor(Color.WHITE);
                 //paint grid
                 g.drawRect(
-                        i * pixelsPerSquare,
                         j * pixelsPerSquare,
+                        i * pixelsPerSquare,
                         pixelsPerSquare,
                         pixelsPerSquare);
+                // paintBlock, if fixed
+                Block block = playingArea[i][j];
+                if(block.getType() == Block.FIXED_BLOCK)
+                    block.paintBlock(new Point(j,i),g);
             }
         }
         /*

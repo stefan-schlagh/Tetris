@@ -24,6 +24,14 @@ public class Block {
         this.y = y;
     }
 
+    public void paintBlock(Point position, Graphics g){
+        g.setColor(color);
+        g.fillRect(
+                (position.x + getX()) * PlayingArea.pixelsPerSquare + 1,
+                (position.y + getY()) * PlayingArea.pixelsPerSquare + 1,
+                28,28);
+    }
+
     public int getX() {
         return x;
     }
