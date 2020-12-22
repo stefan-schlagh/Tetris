@@ -65,7 +65,7 @@ public class PlayingArea extends JPanel implements Runnable{
     @Override
     public void run() {
 
-        currentPiece = Piece.getPiece(Piece.getRandPNumber());
+        generateNewPiece();
 
         int i = 0;
 
@@ -115,8 +115,8 @@ public class PlayingArea extends JPanel implements Runnable{
          */
         if(currentPiece.isAtBottom() || isCollision(DIRECTION_DOWN)) {
             pieceIntoBlocks(currentPiece);
-            currentPiece.init();
-            currentPiece = Piece.getPiece(Piece.getRandPNumber());
+            generateNewPiece();
+            collapseFullRows();
         }else {
             currentPiece.moveOneDown();
         }
@@ -202,6 +202,64 @@ public class PlayingArea extends JPanel implements Runnable{
             paBlock.setType(Block.FIXED_BLOCK);
             paBlock.setColor(pBlock.getColor());
         }
+    }
+    /*
+        collapse full rows and increase point counter
+     */
+    public void collapseFullRows(){
+        /*
+            loop over playing area
+            if full row is type Block.FIXED_BLOCK,
+                row is removed from array and the upper parts of the field collapse down
+            if a row has been collapsed, the loop has to be started new
+         */
+        boolean lookedAtAll = false;
+        while(!lookedAtAll) {
+            boolean nonFixedBlockInRow;
+            for (int i = playingArea.length - 1;i >= 0;i--) {
+                //if this remains false, collapse
+                nonFixedBlockInRow = false;
+                if(playingArea[i].length != areaWidth)
+                    throw  new RuntimeException("length");
+                for (int j = 0; j < playingArea[i].length; j++) {
+                    if (playingArea[i][j].getType() == Block.NONE) {
+                        nonFixedBlockInRow = true;
+                        break;
+                    }
+                }
+                // if there was no non-fixed block in the row, collapse
+                if (!nonFixedBlockInRow){
+                    collapseRow(i);
+                    break;
+                }
+                // all rows checked
+                if(i <= 0)
+                    lookedAtAll = true;
+            }
+        }
+        //TODO points
+    }
+    /*
+        row is collapsed
+     */
+    public void collapseRow(int rowIndex){
+        for(int i = rowIndex;i >= 1;i--){
+            // each row drops 1 down, row at rowIndex gets deleted
+            playingArea[i] = playingArea[i-1];
+        }
+        // last row has to be new initialized
+        Block[] blockRow = new Block[areaWidth];
+        for (int i = 0;i<blockRow.length;i++) {
+            blockRow[i] = new Block(Block.NONE);
+        }
+        playingArea[0] = blockRow;
+    }
+    /*
+        generate new piece
+     */
+    public void generateNewPiece(){
+        currentPiece = Piece.getPiece(Piece.getRandPNumber());
+        currentPiece.init();
     }
 
     @Override
