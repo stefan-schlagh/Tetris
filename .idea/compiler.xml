@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Tetris" target="12" />
+      <module name="Tetris" target="11.0.9" />
     </bytecodeTargetLevel>
   </component>
 </project>

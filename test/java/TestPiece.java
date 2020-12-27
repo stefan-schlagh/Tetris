@@ -1,13 +1,13 @@
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class TestPiece {
     @Test
-    void DimensionsI() {
+    public void DimensionsI() {
         Piece piece = Piece.I;
-        Assertions.assertEquals(piece.getHeight(), 4);
-        Assertions.assertEquals(piece.getWidth(), 1);
-    }
+        assertEquals(4, piece.getHeight());
+        assertEquals(1, piece.getWidth());
+    }/*
     @Test
     void DimensionsO() {
         Piece piece = Piece.O;
@@ -125,5 +125,5 @@ public class TestPiece {
         Assertions.assertEquals(1,blocks[1].getY());
         Assertions.assertEquals(0,blocks[0].getX());
         Assertions.assertEquals(1,blocks[1].getX());
-    }
+    }*/
 }
