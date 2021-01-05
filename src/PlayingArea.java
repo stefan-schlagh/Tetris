@@ -14,6 +14,9 @@ public class PlayingArea extends JPanel implements Runnable{
     private Block[][] playingArea = new Block[areaHeight][areaWidth];
     private Piece currentPiece;
     private boolean running = true;
+    //the points the player earned
+    private int points = 0;
+    private AreaChangeListener areaChangeListener;
 
     private static final int ACTION_ROTATE = KeyEvent.VK_UP;
     private static final int ACTION_LEFT = KeyEvent.VK_LEFT;
@@ -186,12 +189,17 @@ public class PlayingArea extends JPanel implements Runnable{
         make blocks of piece into blocks in the playingArea
      */
     public void pieceIntoBlocks(Piece piece){
-
+        // if the block is over the playing field, end game
         Block[] pBlocks = piece.getBlocks();
         for(int i = 0;i < pBlocks.length;i++){
             Block pBlock = pBlocks[i];
             int x_block = piece.getPosition().x + pBlock.getX();
             int y_block = piece.getPosition().y + pBlock.getY();
+
+            if(y_block < 0) {
+                gameOver();
+                break;
+            }
 
             Block paBlock = playingArea[y_block][x_block];
             // paBlock.type has to be Block.NONE
@@ -202,6 +210,13 @@ public class PlayingArea extends JPanel implements Runnable{
             paBlock.setType(Block.FIXED_BLOCK);
             paBlock.setColor(pBlock.getColor());
         }
+    }
+    /*
+        game over
+     */
+    public void gameOver(){
+        if(areaChangeListener != null)
+            areaChangeListener.gameOver();
     }
     /*
         collapse full rows and increase point counter
@@ -230,6 +245,9 @@ public class PlayingArea extends JPanel implements Runnable{
                 // if there was no non-fixed block in the row, collapse
                 if (!nonFixedBlockInRow){
                     collapseRow(i);
+                    points += 10;
+                    if(areaChangeListener != null)
+                        areaChangeListener.nextPiece(points);
                     break;
                 }
                 // all rows checked
@@ -237,7 +255,6 @@ public class PlayingArea extends JPanel implements Runnable{
                     lookedAtAll = true;
             }
         }
-        //TODO points
     }
     /*
         row is collapsed
@@ -300,5 +317,9 @@ public class PlayingArea extends JPanel implements Runnable{
 
     public boolean isRunning() {
         return running;
+    }
+
+    public void setAreaChangeListener(AreaChangeListener areaChangeListener) {
+        this.areaChangeListener = areaChangeListener;
     }
 }
