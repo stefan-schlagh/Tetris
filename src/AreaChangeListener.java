@@ -1,4 +1,5 @@
 public interface AreaChangeListener {
-    void nextPiece(int points);
+    void rowCollapsed(int points);
+    void nextPiece();
     void gameOver();
 }

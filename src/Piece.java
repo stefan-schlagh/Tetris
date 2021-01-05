@@ -330,15 +330,19 @@ public enum Piece {
         return Piece.I;
     }
 
-    public void setBlocks(Block[] blocks) {
-        this.blocks = blocks;
-    }
-
     public Point getPosition() {
         return position;
     }
 
     public void setPosition(Point position) {
         this.position = position;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public Point[] getPoints() {
+        return points;
     }
 }

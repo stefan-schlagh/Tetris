@@ -13,6 +13,7 @@ public class PlayingArea extends JPanel implements Runnable{
 
     private Block[][] playingArea = new Block[areaHeight][areaWidth];
     private Piece currentPiece;
+    private Piece nextPiece;
     private boolean running = true;
     //the points the player earned
     private int points = 0;
@@ -135,6 +136,8 @@ public class PlayingArea extends JPanel implements Runnable{
         }else {
             // get the blocks of the piece that are facing in the direction
             Block[] blocks = currentPiece.getBlocks(direction);
+            while(checkIfNegative(blocks))
+                currentPiece.moveOneDown();
             //loop over blocks of piece
             for (int i = 0; i < blocks.length; i++) {
 
@@ -181,6 +184,19 @@ public class PlayingArea extends JPanel implements Runnable{
                             return true;
                         break;
                 }
+            }
+        }
+        return false;
+    }
+    /*
+        piece should not be in the negative area
+     */
+    public boolean checkIfNegative(Block[] blocks){
+        //if any block_y is < 0, move down
+        for (int i = 0; i < blocks.length; i++) {
+            int block_y = blocks[i].getY() + currentPiece.getPosition().y;
+            if(block_y < 0){
+                return true;
             }
         }
         return false;
@@ -247,7 +263,7 @@ public class PlayingArea extends JPanel implements Runnable{
                     collapseRow(i);
                     points += 10;
                     if(areaChangeListener != null)
-                        areaChangeListener.nextPiece(points);
+                        areaChangeListener.rowCollapsed(points);
                     break;
                 }
                 // all rows checked
@@ -275,8 +291,13 @@ public class PlayingArea extends JPanel implements Runnable{
         generate new piece
      */
     public void generateNewPiece(){
-        currentPiece = Piece.getPiece(Piece.getRandPNumber());
+        if(nextPiece == null)
+            nextPiece = Piece.getPiece(Piece.getRandPNumber());
+        currentPiece = nextPiece;
         currentPiece.init();
+        nextPiece = Piece.getPiece(Piece.getRandPNumber());
+
+        areaChangeListener.nextPiece();
     }
 
     @Override
@@ -321,5 +342,9 @@ public class PlayingArea extends JPanel implements Runnable{
 
     public void setAreaChangeListener(AreaChangeListener areaChangeListener) {
         this.areaChangeListener = areaChangeListener;
+    }
+
+    public Piece getNextPiece() {
+        return nextPiece;
     }
 }
