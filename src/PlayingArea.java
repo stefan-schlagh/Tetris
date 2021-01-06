@@ -244,7 +244,7 @@ public class PlayingArea extends JPanel implements Runnable{
         Object[] options = {"play again",
                 "exit"};
         int answer = JOptionPane.showOptionDialog(this,
-                "Would you like to play again?",
+                "Game Over! points: " + points,
                 "Game over!",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
