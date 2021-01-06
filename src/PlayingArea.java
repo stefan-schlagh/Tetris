@@ -37,19 +37,27 @@ public class PlayingArea extends JPanel implements Runnable{
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-
+                //if not running, ignore actions
                 switch (e.getKeyCode()){
                     case(ACTION_ROTATE):
-                        rotate();
+                        if(running)
+                            rotate();
                         break;
                     case(ACTION_LEFT):
-                        moveOneLeft();
+                        if(running)
+                            moveOneLeft();
                         break;
                     case(ACTION_RIGHT):
-                        moveOneRight();
+                        if(running)
+                            moveOneRight();
                         break;
                     case(ACTION_DOWN):
-                        moveDown();
+                        if(running)
+                            moveDown();
+                        break;
+                    case(KeyEvent.VK_SPACE):
+                        running = !running;
+                        areaChangeListener.pausedChanged(!running);
                         break;
                 }
             }
@@ -79,9 +87,8 @@ public class PlayingArea extends JPanel implements Runnable{
                     moveDown();
                 i = (i+1)%20;
                 this.repaint();
-            }else{
-
             }
+            //else do nothing
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
@@ -136,8 +143,8 @@ public class PlayingArea extends JPanel implements Runnable{
         }else {
             // get the blocks of the piece that are facing in the direction
             Block[] blocks = currentPiece.getBlocks(direction);
-            while(checkIfNegative(blocks))
-                currentPiece.moveOneDown();
+            //while(checkIfNegative(blocks))
+            //    currentPiece.moveOneDown();
             //loop over blocks of piece
             for (int i = 0; i < blocks.length; i++) {
 
@@ -233,6 +240,39 @@ public class PlayingArea extends JPanel implements Runnable{
     public void gameOver(){
         if(areaChangeListener != null)
             areaChangeListener.gameOver();
+        running = false;
+        Object[] options = {"play again",
+                "exit"};
+        int answer = JOptionPane.showOptionDialog(this,
+                "Would you like to play again?",
+                "Game over!",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,     //do not use a custom Icon
+                options,  //the titles of buttons
+                options[0]); //default button title
+        if(answer == JOptionPane.YES_OPTION){
+            //play again
+            playAgain();
+        }else if(answer == JOptionPane.NO_OPTION){
+            System.exit(0);
+        }else{
+            System.exit(0);
+        }
+    }
+    /*
+        play again
+            clear playingArea
+            set points to 0
+     */
+    public void playAgain(){
+
+        points = 0;
+
+        playingArea = new Block[areaHeight][areaWidth];
+        initBlocks();
+
+        running = true;
     }
     /*
         collapse full rows and increase point counter

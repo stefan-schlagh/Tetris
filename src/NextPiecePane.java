@@ -8,6 +8,8 @@ public class NextPiecePane extends JPanel {
     public NextPiecePane(PlayingArea playingArea){
         this.playingArea = playingArea;
 
+        setSize(200,100);
+
         setBackground(Color.BLACK);
     }
 
