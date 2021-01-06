@@ -297,9 +297,37 @@ public enum Piece {
         }
         return blocks;
     }
-
-    public void setBlocks(Block[] blocks) {
-        this.blocks = blocks;
+    /*
+        returns random PieceNumber
+        get piece with getPiece(int num)
+     */
+    public static int getRandPNumber(){
+        return (int)(Math.random() * 7);
+    }
+    /*
+        get a piece by the number
+            numbers 0 - 6
+     */
+    public static Piece getPiece(int num){
+        switch (num) {
+            case (0):
+                return Piece.I;
+            case(1):
+                return Piece.O;
+            case(2):
+                return Piece.T;
+            case(3):
+                return Piece.S;
+            case(4):
+                return Piece.Z;
+            case(5):
+                return Piece.J;
+            case(6):
+                return Piece.L;
+            default:
+                assert false;
+        }
+        return Piece.I;
     }
 
     public Point getPosition() {
@@ -308,5 +336,13 @@ public enum Piece {
 
     public void setPosition(Point position) {
         this.position = position;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public Point[] getPoints() {
+        return points;
     }
 }

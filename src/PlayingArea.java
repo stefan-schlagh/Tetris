@@ -13,7 +13,11 @@ public class PlayingArea extends JPanel implements Runnable{
 
     private Block[][] playingArea = new Block[areaHeight][areaWidth];
     private Piece currentPiece;
+    private Piece nextPiece;
     private boolean running = true;
+    //the points the player earned
+    private int points = 0;
+    private AreaChangeListener areaChangeListener;
 
     private static final int ACTION_ROTATE = KeyEvent.VK_UP;
     private static final int ACTION_LEFT = KeyEvent.VK_LEFT;
@@ -33,19 +37,27 @@ public class PlayingArea extends JPanel implements Runnable{
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-
+                //if not running, ignore actions
                 switch (e.getKeyCode()){
                     case(ACTION_ROTATE):
-                        rotate();
+                        if(running)
+                            rotate();
                         break;
                     case(ACTION_LEFT):
-                        moveOneLeft();
+                        if(running)
+                            moveOneLeft();
                         break;
                     case(ACTION_RIGHT):
-                        moveOneRight();
+                        if(running)
+                            moveOneRight();
                         break;
                     case(ACTION_DOWN):
-                        moveDown();
+                        if(running)
+                            moveDown();
+                        break;
+                    case(KeyEvent.VK_SPACE):
+                        running = !running;
+                        areaChangeListener.pausedChanged(!running);
                         break;
                 }
             }
@@ -65,7 +77,7 @@ public class PlayingArea extends JPanel implements Runnable{
     @Override
     public void run() {
 
-        currentPiece = Piece.O;
+        generateNewPiece();
 
         int i = 0;
 
@@ -75,9 +87,8 @@ public class PlayingArea extends JPanel implements Runnable{
                     moveDown();
                 i = (i+1)%20;
                 this.repaint();
-            }else{
-
             }
+            //else do nothing
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
@@ -115,7 +126,8 @@ public class PlayingArea extends JPanel implements Runnable{
          */
         if(currentPiece.isAtBottom() || isCollision(DIRECTION_DOWN)) {
             pieceIntoBlocks(currentPiece);
-            currentPiece.init();
+            generateNewPiece();
+            collapseFullRows();
         }else {
             currentPiece.moveOneDown();
         }
@@ -131,6 +143,8 @@ public class PlayingArea extends JPanel implements Runnable{
         }else {
             // get the blocks of the piece that are facing in the direction
             Block[] blocks = currentPiece.getBlocks(direction);
+            //while(checkIfNegative(blocks))
+            //    currentPiece.moveOneDown();
             //loop over blocks of piece
             for (int i = 0; i < blocks.length; i++) {
 
@@ -182,15 +196,33 @@ public class PlayingArea extends JPanel implements Runnable{
         return false;
     }
     /*
+        piece should not be in the negative area
+     */
+    public boolean checkIfNegative(Block[] blocks){
+        //if any block_y is < 0, move down
+        for (int i = 0; i < blocks.length; i++) {
+            int block_y = blocks[i].getY() + currentPiece.getPosition().y;
+            if(block_y < 0){
+                return true;
+            }
+        }
+        return false;
+    }
+    /*
         make blocks of piece into blocks in the playingArea
      */
     public void pieceIntoBlocks(Piece piece){
-
+        // if the block is over the playing field, end game
         Block[] pBlocks = piece.getBlocks();
         for(int i = 0;i < pBlocks.length;i++){
             Block pBlock = pBlocks[i];
             int x_block = piece.getPosition().x + pBlock.getX();
             int y_block = piece.getPosition().y + pBlock.getY();
+
+            if(y_block < 0) {
+                gameOver();
+                break;
+            }
 
             Block paBlock = playingArea[y_block][x_block];
             // paBlock.type has to be Block.NONE
@@ -201,6 +233,111 @@ public class PlayingArea extends JPanel implements Runnable{
             paBlock.setType(Block.FIXED_BLOCK);
             paBlock.setColor(pBlock.getColor());
         }
+    }
+    /*
+        game over
+     */
+    public void gameOver(){
+        if(areaChangeListener != null)
+            areaChangeListener.gameOver();
+        running = false;
+        Object[] options = {"play again",
+                "exit"};
+        int answer = JOptionPane.showOptionDialog(this,
+                "Game Over! points: " + points,
+                "Game over!",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,     //do not use a custom Icon
+                options,  //the titles of buttons
+                options[0]); //default button title
+        if(answer == JOptionPane.YES_OPTION){
+            //play again
+            playAgain();
+        }else if(answer == JOptionPane.NO_OPTION){
+            System.exit(0);
+        }else{
+            System.exit(0);
+        }
+    }
+    /*
+        play again
+            clear playingArea
+            set points to 0
+     */
+    public void playAgain(){
+
+        points = 0;
+
+        playingArea = new Block[areaHeight][areaWidth];
+        initBlocks();
+
+        running = true;
+    }
+    /*
+        collapse full rows and increase point counter
+     */
+    public void collapseFullRows(){
+        /*
+            loop over playing area
+            if full row is type Block.FIXED_BLOCK,
+                row is removed from array and the upper parts of the field collapse down
+            if a row has been collapsed, the loop has to be started new
+         */
+        boolean lookedAtAll = false;
+        while(!lookedAtAll) {
+            boolean nonFixedBlockInRow;
+            for (int i = playingArea.length - 1;i >= 0;i--) {
+                //if this remains false, collapse
+                nonFixedBlockInRow = false;
+                if(playingArea[i].length != areaWidth)
+                    throw  new RuntimeException("length");
+                for (int j = 0; j < playingArea[i].length; j++) {
+                    if (playingArea[i][j].getType() == Block.NONE) {
+                        nonFixedBlockInRow = true;
+                        break;
+                    }
+                }
+                // if there was no non-fixed block in the row, collapse
+                if (!nonFixedBlockInRow){
+                    collapseRow(i);
+                    points += 10;
+                    if(areaChangeListener != null)
+                        areaChangeListener.rowCollapsed(points);
+                    break;
+                }
+                // all rows checked
+                if(i <= 0)
+                    lookedAtAll = true;
+            }
+        }
+    }
+    /*
+        row is collapsed
+     */
+    public void collapseRow(int rowIndex){
+        for(int i = rowIndex;i >= 1;i--){
+            // each row drops 1 down, row at rowIndex gets deleted
+            playingArea[i] = playingArea[i-1];
+        }
+        // last row has to be new initialized
+        Block[] blockRow = new Block[areaWidth];
+        for (int i = 0;i<blockRow.length;i++) {
+            blockRow[i] = new Block(Block.NONE);
+        }
+        playingArea[0] = blockRow;
+    }
+    /*
+        generate new piece
+     */
+    public void generateNewPiece(){
+        if(nextPiece == null)
+            nextPiece = Piece.getPiece(Piece.getRandPNumber());
+        currentPiece = nextPiece;
+        currentPiece.init();
+        nextPiece = Piece.getPiece(Piece.getRandPNumber());
+
+        areaChangeListener.nextPiece();
     }
 
     @Override
@@ -241,5 +378,13 @@ public class PlayingArea extends JPanel implements Runnable{
 
     public boolean isRunning() {
         return running;
+    }
+
+    public void setAreaChangeListener(AreaChangeListener areaChangeListener) {
+        this.areaChangeListener = areaChangeListener;
+    }
+
+    public Piece getNextPiece() {
+        return nextPiece;
     }
 }
